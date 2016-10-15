@@ -11,8 +11,10 @@ var Mapp = React.createClass({
       // currentUser: "",
       // loggedIn: false 
       profiles: {},
-      currentUser: "Ross",
-      loggedIn: true 
+      currentUser: "",
+      selectedUser: "",
+
+      loggedIn: false 
     }
   },
 
@@ -25,30 +27,64 @@ var Mapp = React.createClass({
           <input type='text' placeholder="Enter your name to start chatting!" onChange={ this.setCurrentUser }/>
           <button onClick={ this.login }>Login</button>
         </div>
+        <div className="create">
+          <input type='text' placeholder="Create a profile" onChange={ this.setCurrentUser }/>
+          <button onClick={ this.makeProfile  }>Login</button>
+        </div>
       </div>
 
     } else {
       return <div className="theContent">
         <h1>Welcome, { this.state.currentUser }</h1>
         <div className="mainContent">
-            <div className="theMap">
-
-            </div>
             <div className="theUsers">
               { Object.keys(this.state.profiles).map((id) => {
                 var profile = this.state.profiles[id];
-                var maps = profile.maps;
+                // console.log(profile)
+                // var maps = profile.maps;
+                
                 return <div key={ id } className="user">
                   <ul>
                     <li>
-                    { profile.userName }
+                    { profile.userName } 
+                    { profile.userName === this.state.currentUser ? <a href="/" onClick={ this.addMap }><span className="addMap"> + </span></a> : null  }
                     </li>
                   </ul>
                 </div>
               })}
-
-
             </div>
+            <div className="theMap">
+              { Object.keys(this.state.profiles).map((id) => {
+                var profile = this.state.profiles[id];
+                var maps = profile.maps;
+
+
+
+                return <div key={ id } className="user">
+                    { profile.userName === this.state.selectedUser ? 
+                      
+                      <ul>
+                        <li>  
+                          { 
+                            Object.keys(maps).map((id) => {
+                              var points = maps[id];
+                                Object.keys(points).map((id) => {
+                                //
+                                var point = points[id];
+                                console.log(point)
+                               //
+                                })
+                            })
+                          } 
+                      </li>
+                    </ul>
+
+                      : null } 
+                    
+                </div>
+              })}
+            </div>
+
         </div>
       </div>
     }
@@ -60,7 +96,26 @@ var Mapp = React.createClass({
   },
 
   login: function() {
-    this.setState({ loggedIn: true });
+    this.setState({ loggedIn: true, selectedUser: this.state.currentUser });
+  },
+
+  makeProfile: function(event) {
+    var newUser = this.state.currentUser;
+    var newProfile = {
+      userName: newUser,
+      maps: ''
+    };
+    // console.log(event.target.value);
+    //
+    this.firebaseRef.push(newProfile);
+
+    this.setState({
+      loggedIn: true
+    })
+  },
+
+  getMap: function() {
+    
   },
 
   componentDidMount: function() {
@@ -72,8 +127,8 @@ var Mapp = React.createClass({
       var profiles = this.state.profiles;
       profiles[dataSnapshot.key] = dataSnapshot.val();
       this.setState({profiles: profiles});
+      // console.log(profiles)
     });
-
     // console.table(this.state.users);
     // this.firebaseRef.on("child_removed", (dataSnapshot) => {
     //   var messages = this.state.messages;
